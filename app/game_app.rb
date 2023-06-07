@@ -47,7 +47,7 @@ class GameApp
         puts "5 - Find a character by superpower"
         puts "6 - Display most expensive game"
         puts "7 - Display cheapest game"
-        puts "8 - Count genders"
+        puts "8 - Count genders per character"
         puts "9 - Go back to main menu"
 
         puts "Enter your choice:"
@@ -74,9 +74,9 @@ class GameApp
             choice = simple_options
 
             if choice === "1"
-                show_games
+                Game.show_games
             elsif choice === "2"
-                show_characters
+                Character.show_characters
             elsif choice === "3"
                 find_game
             elsif choice === "4"
@@ -84,11 +84,11 @@ class GameApp
             elsif choice === "5"
                 find_superpower
             elsif choice === "6"
-                max_price
+                Game.max_price
             elsif choice === "7"
-                min_price
+                Game.min_price
             elsif choice === "8"
-                count_gender
+                Character.count_gender
             elsif choice === "9"
                 break
             else
@@ -117,36 +117,13 @@ class GameApp
         end
     end
 
-    def show_games
-        puts "Games"
-        puts "ID\t\tName\t\t\t\t\t\tPlatform\t\t\tPrice"
-        Game.all.each do |g|
-            printf("%-3d\t\t%-48s%-32s%.2f\n", g.id, g.name, g.platform, g.price)
-        end
-    end
-
-    def show_characters
-        puts "Characters"
-        puts "ID\t\tName\t\t\t\t\tGender\t\t\tSuperpower"
-        Character.all.each do |c|
-            printf("%-3d\t\t%-40s%-24s%-30s\n", c.id, c.name, c.gender, c.superpower)
-        end
-    end
-
     def find_game
         puts "Please enter game title:"
         title = gets.chomp
         game = Game.find_by(name: title)
 
-        if game
-            puts ""
-            puts "Information about #{title}:"
-            puts ""
-            puts "ID: #{game.id}"
-            puts "Platform: #{game.platform}"
-            puts "Name: #{game.name}"
-            puts "Price: #{game.price}"
-            puts ""
+        if game 
+            Game.find_game_class(game)
         else
             puts "No game found with the title #{title}!"
         end
@@ -157,65 +134,23 @@ class GameApp
         char_name = gets.chomp
         character = Character.find_by(name: char_name)
 
-        if character
-            puts ""
-            puts "Information about #{char_name}:"
-            puts ""
-            puts "Name: #{character.name}"
-            puts "Gender: #{character.gender}"
-            puts "Superpower: #{character.superpower}"
-            puts ""
-        else
+        if character 
+            Character.find_character_class(character)
+        else 
             puts "No character found with the name #{char_name}!"
         end
     end
 
-    def find_superpower
+    def find_superpower 
         puts "Please enter a superpower:"
         power = gets.chomp
-        characters = Character.where(superpower: power)
+        character = Character.where(superpower: power)
 
-        if characters
-            characters.each do |character|
-                puts ""
-                puts "#{character.superpower} belongs to #{character.name}, who features in #{character.game.name}"
-                puts ""
-            end
+        if character
+            Character.find_superpower_class(character)
         else
             puts "#{power} superpower not found!"
         end
-    end
-
-    def max_price
-        maxi = Game.all.max_by do |game|
-            game.price
-        end
-        puts ""
-        puts "#{maxi.name} is the most expensive game, with a price of $#{maxi.price}"
-        puts ""
-    end
-
-    def min_price
-        mini = Game.all.min_by do |game|
-            game.price
-        end
-        puts ""
-        puts "#{mini.name} is the cheapest game, with a price of $#{mini.price}"
-        puts ""
-    end
-
-    def count_gender
-
-        male_count = Character.count do |char|
-            char[:gender] == "Male"
-        end
-
-        female_count = Character.count do |char|
-            char[:gender] == "Female"
-        end
-        puts ""
-        puts "There are #{male_count} males and #{female_count} females"
-        puts ""
     end
 
     def get_input
